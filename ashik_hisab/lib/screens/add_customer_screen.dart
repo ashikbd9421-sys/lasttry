@@ -29,7 +29,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     };
     final db = DbHelper.instance;
     if (widget.existing == null) {
-      row['created_at'] = DateTime.now().millisecondsSinceEpoch;
+      row['created_at'] = DateTime.now().millisecondsSinceEpoch.toString();
       await db.insertCustomer(row);
     } else {
       await db.updateCustomer(widget.existing!['id'] as int, row);
