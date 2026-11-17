@@ -63,7 +63,11 @@ workflows:
           ls -la build/app/outputs/flutter-apk/
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
+      - "build/app/outputs/flutter-apk/app-release.apk"
     publishing:
       email:
         recipients:
           - ashikbd9421@gmail.com
+        notify:
+          success: true
+          failure: true
