@@ -1,6 +1,5 @@
 # Codemagic workflow for building আশিক হিসাব APK
-# Put this file at the ROOT of your GitHub repository (same level as
-# pubspec.yaml, or one level above the ashik_hisab folder — it finds it).
+# Put this file at the ROOT of your GitHub repository.
 
 workflows:
   ashik-hisab-apk:
@@ -39,31 +38,28 @@ workflows:
       - name: Accept Android SDK licenses
         script: |
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager --list_installed 2>/dev/null | head -20 || true
       - name: Build release APK
         script: |
           set -e
+          PROJECT_DIR="$CM_SOURCE_DIR"
           if [ ! -f pubspec.yaml ] && [ -f ashik_hisab/pubspec.yaml ]; then
+            PROJECT_DIR="$CM_SOURCE_DIR/ashik_hisab"
             cd ashik_hisab
           fi
-          set +e
+
           flutter build apk --release
-          rc=$?
-          if [ $rc -ne 0 ]; then
-            echo "=== First attempt failed (code $rc). Retrying once... ==="
-            flutter clean > /dev/null 2>&1
-            flutter pub get > /dev/null 2>&1
-            flutter build apk --release
-            rc=$?
-          fi
-          if [ $rc -ne 0 ]; then
-            echo "=== BUILD FAILED ==="
-            exit $rc
-          fi
-          ls -la build/app/outputs/flutter-apk/
+
+          APK_PATH="$PROJECT_DIR/build/app/outputs/flutter-apk/app-release.apk"
+          ls -la "$APK_PATH"
+
+          # Copy the APK to the repo root so Codemagic can always find it
+          cp "$APK_PATH" "$CM_SOURCE_DIR/Ashik-Hisab.apk"
+          ls -la "$CM_SOURCE_DIR"/*.apk
+          echo "=== APK READY: Ashik-Hisab.apk ==="
     artifacts:
+      - Ashik-Hisab.apk
       - build/app/outputs/flutter-apk/*.apk
-      - "build/app/outputs/flutter-apk/app-release.apk"
+      - ashik_hisab/build/app/outputs/flutter-apk/*.apk
     publishing:
       email:
         recipients:
